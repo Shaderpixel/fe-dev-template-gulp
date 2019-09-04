@@ -1,0 +1,12 @@
+//////////////////////////
+// !THEME / ELEMENTS / BODY
+//////////////////////////
+
+body {
+ -webkit-font-smoothing: antialiased;
+ background-color: $white;
+}
+
+* {
+ @include font-roman;
+}

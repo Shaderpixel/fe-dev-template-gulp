@@ -1,0 +1,136 @@
+{
+  "name": "front-end-development-template",
+  "version": "1.0.0",
+  "description": "Basic Gulp setup for compiling CSS from SCSS and transpiling ES6",
+  "main": "gulpfile.js",
+  "author": "Shaderpixel",
+  "copyright": "Shaderpixel",
+  "license": "ISC",
+  "paths": {
+    "src": {
+      "base": "assets/src/",
+      "scss": "assets/src/scss/",
+      "css": "assets/src/css/",
+      "fonts": "assets/src/fonts/",
+      "json": "assets/src/json/",
+      "js": "assets/src/js/",
+      "img": "assets/src/img/",
+      "svg": "assets/src/svg/"
+    },
+    "build": {
+      "base": "assets/build/",
+      "css": "assets/build/css/",
+      "fonts": "assets/build/fonts/",
+      "js": "assets/build/js/",
+      "html": "assets/build/html/",
+      "img": "assets/build/img/"
+    },
+    "dist": {
+      "base": "assets/dist/",
+      "css": "assets/dist/css/",
+      "js": "assets/dist/js/",
+      "fonts": "assets/dist/fonts/",
+      "img": "assets/dist/img/",
+      "svg": "assets/dist/svg/"
+    },
+    "templates": "templates/"
+  },
+  "urls": {},
+  "vars": {
+    "siteCssName": "site.combined.min.css",
+    "printCssName": "print.min.css",
+    "scssName": "all.scss",
+    "cssName": "all.css",
+    "jsName": "script.js",
+    "buildJsName": "buildScript.js"
+  },
+  "globs": {
+    "distCss": [
+      "assets/src/css/**/*.css",
+      "assets/build/css/all.css"
+    ],
+    "distPrintCss": [
+      "assets/build/css/print.css"
+    ],
+    "distJs": [
+      "node_modules/picturefill/dist/picturefill.min.js",
+      "node_modules/fontfaceobserver/fontfaceobserver.js",
+      "assets/build/js/**/*.js"
+    ],
+    "babelJs": [
+      "assets/src/js/**/*.js"
+    ]
+  },
+  "dependencies": {
+    "fg-loadcss": "^2.1.0",
+    "fontfaceobserver": "^2.1.0",
+    "normalize.css": "^8.0.1",
+    "picturefill": "^3.0.3",
+    "sass-mq": "^5.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+    "@babel/plugin-transform-arrow-functions": "^7.2.0",
+    "@babel/preset-env": "^7.5.5",
+    "bootstrap-sass": "^3.3.7",
+    "browser-sync": "^2.26.7",
+    "chalk": "^2.4.2",
+    "dcf": "git+https://github.com/d-c-n/dcf.git",
+    "del": "^5.1.0",
+    "fancy-log": "^1.3.3",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^7.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cached": "^1.1.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-cssnano": "^2.1.3",
+    "gulp-debug": "^4.0.0",
+    "gulp-download": "^0.0.1",
+    "gulp-eslint": "^6.0.0",
+    "gulp-filter": "^6.0.0",
+    "gulp-header": "^2.0.9",
+    "gulp-if": "^3.0.0",
+    "gulp-ignore": "^3.0.0",
+    "gulp-imagemin": "^6.1.0",
+    "gulp-livereload": "^4.0.1",
+    "gulp-load-plugins": "^2.0.1",
+    "gulp-newer": "^1.4.0",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-print": "^5.0.2",
+    "gulp-rename": "^1.4.0",
+    "gulp-replace": "1.0.0",
+    "gulp-rev": "^9.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sass-glob": "^1.1.0",
+    "gulp-sassvg": "^4.0.1",
+    "gulp-sftp": "^0.1.5",
+    "gulp-shell": "^0.7.1",
+    "gulp-size": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-streamify": "1.0.2",
+    "gulp-svg-sprite": "^1.5.0",
+    "gulp-uglify": "^3.0.2",
+    "gulp-util": "^3.0.8",
+    "lodash": "^4.17.15",
+    "modularscale-sass": "^3.0.8",
+    "moment": "^2.24.0",
+    "path": "^0.12.7",
+    "postcss-normalize": "^8.0.1",
+    "vinyl-ftp": "^0.6.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "browserslist": [
+    "last 1 Chrome version",
+    "last 1 Explorer version",
+    "last 1 Firefox version",
+    "Firefox ESR",
+    "last 1 Safari version",
+    "Android >= 4.0",
+    "BlackBerry >= 4.0",
+    "iOS >= 10"
+  ]
+}
