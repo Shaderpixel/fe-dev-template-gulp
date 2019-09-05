@@ -2,7 +2,7 @@
 // !THEME / COMPONENTS / NAV: GLOBAL
 ////////////////////////////////////
 
-.unk {
+.shdpx {
   .dcf-nav-global {
     color: $white;
 
@@ -47,7 +47,7 @@
 }
 
 @include mq(730px, max, width) {
-  .unk{
+  .shdpx{
     .dcf-nav-global {
       display: none;
     }
@@ -55,7 +55,7 @@
 }
 
 @include mq(731px, min, width) {
-  .unk{
+  .shdpx{
     .dcf-nav-global {
       .dcf-nav-menu {
         @include pt-2;
@@ -69,7 +69,7 @@
 }
 
 @include mq(1126, min, width) {
-  .unk {
+  .shdpx {
     .dcf-nav-global {
       .dcf-nav-menu {
         @include pt-0;

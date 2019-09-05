@@ -2,7 +2,7 @@
 // !THEME / COMPONENTS / HEADER
 ///////////////////////////////
 
-.unk {
+.shdpx {
 	.dcf-header {
 		background-color: $color-brand-alpha;
 		border-bottom: 4px solid $color-brand-beta;
@@ -41,7 +41,7 @@
 
 
 @include mq(731, min, width) {
-	.unk {
+	.shdpx {
 		.dcf-header {
 			.dcf-search {
 				flex: 1;
@@ -111,13 +111,13 @@
 
 @media (min-width: _mq-em(731px)) and (max-width: _mq-em(820px)) {
 	// accommodate local header font size between these ranges before hidden in hamburger menu
-	.unk .dcf-header .dcf-nav-global {
+	.shdpx .dcf-header .dcf-nav-global {
 		font-size: calc(0.479em + 1vw);
 	}
 }
 
 @include mq(1126, min, width) {
-	.unk {
+	.shdpx {
 		.dcf-header-global {
 			height: 100%;
 		}

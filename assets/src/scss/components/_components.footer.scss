@@ -6,15 +6,15 @@
 // !Common Footer Styles
 
 // !Local Footer
-// .unk .dcf-footer-local {
+// .shdpx .dcf-footer-local {
 // }
 
 
 // !Global Footer
-// .unk .dcf-footer-global {
+// .shdpx .dcf-footer-global {
 // }
 
-.unk {
+.shdpx {
   .dcf-footer {
     border-top: 2px solid #ccc;
   }
@@ -147,7 +147,7 @@
 }
 
 @include mq(576px, min, width) {
-  .unk {
+  .shdpx {
     .contact {
       .svg-container {
         align-self: flex-end;
@@ -168,13 +168,13 @@
 }
 
 //@include mq(731px, min, width) {
-//  .unk {
+//  .shdpx {
 //
 //  }
 //}
 
 @include mq(1000, min, width) {
-  .unk {
+  .shdpx {
     .dcf-footer-global {
       .students {
         flex: 0 1 17%;
