@@ -15,7 +15,8 @@
       "json": "assets/src/json/",
       "js": "assets/src/js/",
       "img": "assets/src/img/",
-      "svg": "assets/src/svg/"
+      "svg": "assets/src/svg/",
+      "unconcat": "unconcatenated-files/"
     },
     "build": {
       "base": "assets/build/",
@@ -25,6 +26,11 @@
       "html": "assets/build/html/",
       "img": "assets/build/img/"
     },
+    "buildUnconcat": {
+      "base": "../mobiltex/trunk/build/unconcatenated-files/",
+      "css": "css/",
+      "js": "js/"
+    },
     "dist": {
       "base": "assets/dist/",
       "css": "assets/dist/css/",
@@ -32,6 +38,11 @@
       "fonts": "assets/dist/fonts/",
       "img": "assets/dist/img/",
       "svg": "assets/dist/svg/"
+    },
+    "distUnconcat": {
+      "base": "../mobiltex/trunk/dist/unconcatenated-files/",
+      "css": "css/",
+      "js": "js/"
     },
     "templates": "templates/"
   },
@@ -49,22 +60,35 @@
       "assets/src/css/**/*.css",
       "assets/build/css/all.css"
     ],
+    "distUnconcatCss": [
+      "unconcatenated-files/css/**/*.css"
+    ],
     "distPrintCss": [
       "assets/build/css/print.css"
     ],
     "distJs": [
       "node_modules/picturefill/dist/picturefill.min.js",
       "node_modules/fontfaceobserver/fontfaceobserver.js",
+      "node_modules/object-fit-images/dist/ofi.min.js",
       "assets/build/js/**/*.js"
+    ],
+    "distUnconcatJs": [
+      "../mobiltex/trunk/build/unconcatenated-files/js/**/*.js",
+      "unconcatenated-files/js/**/*.js",
+      "!unconcatenated-files/js/**/*.babel.js"
     ],
     "babelJs": [
       "assets/src/js/**/*.js"
+    ],
+    "babelUnconcatJs": [
+      "unconcatenated-files/js/**/*.babel.js"
     ]
   },
   "dependencies": {
     "fg-loadcss": "^2.1.0",
     "fontfaceobserver": "^2.1.0",
     "normalize.css": "^8.0.1",
+    "object-fit-images": "^3.2.4",
     "picturefill": "^3.0.3",
     "sass-mq": "^5.0.1"
   },
