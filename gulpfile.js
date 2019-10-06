@@ -461,7 +461,7 @@ gulp.task(
     'clean:dist',
     'htmlDistCopy',
     'screenAll',
-    'printCss',
+    'printAll',
     'unconcatScss',
     'unconcatCss',
     'cached-lint',
