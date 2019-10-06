@@ -9,62 +9,63 @@
   "paths": {
     "src": {
       "base": "assets/src/",
-      "scss": "assets/src/scss/",
-      "css": "assets/src/css/",
-      "fonts": "assets/src/fonts/",
-      "json": "assets/src/json/",
-      "js": "assets/src/js/",
-      "img": "assets/src/img/",
-      "svg": "assets/src/svg/",
-      "unconcat": "unconcatenated-files/"
+      "unconcatBase": "assets/src/unconcatenatedFiles/",
+      "scss": "scss/",
+      "css": "css/",
+      "fonts": "fonts/",
+      "json": "json/",
+      "js": "js/",
+      "img": "img/",
+      "svg": "svg/"
     },
     "build": {
       "base": "assets/build/",
-      "css": "assets/build/css/",
-      "fonts": "assets/build/fonts/",
-      "js": "assets/build/js/",
-      "html": "assets/build/html/",
-      "img": "assets/build/img/"
+      "unconcatBase": "assets/build/unconcatenatedFiles/",
+      "css": "css/",
+      "fonts": "fonts/",
+      "js": "js/",
+      "html": "html/",
+      "img": "img/"
     },
     "buildUnconcat": {
-      "base": "../mobiltex/trunk/build/unconcatenated-files/",
+      "base": "assets/build/unconcatenatedFiles/",
       "css": "css/",
       "js": "js/"
     },
     "dist": {
       "base": "assets/dist/",
-      "css": "assets/dist/css/",
-      "js": "assets/dist/js/",
-      "fonts": "assets/dist/fonts/",
-      "img": "assets/dist/img/",
-      "svg": "assets/dist/svg/"
+      "css": "css/",
+      "js": "js/",
+      "fonts": "fonts/",
+      "img": "img/",
+      "svg": "svg/"
     },
     "distUnconcat": {
-      "base": "../mobiltex/trunk/dist/unconcatenated-files/",
+      "base": "assets/dist/unconcatenatedFiles/",
       "css": "css/",
       "js": "js/"
     },
     "templates": "templates/"
   },
-  "urls": {},
-  "vars": {
-    "siteCssName": "site.combined.min.css",
-    "printCssName": "print.min.css",
-    "scssName": "all.scss",
-    "cssName": "all.css",
-    "jsName": "script.js",
-    "buildJsName": "buildScript.js"
-  },
   "globs": {
+    "srcUnconcatScss": "assets/src/unconcatenatedFiles/scss/**/*.scss",
     "distCss": [
       "assets/src/css/**/*.css",
       "assets/build/css/all.css"
     ],
     "distUnconcatCss": [
-      "unconcatenated-files/css/**/*.css"
+      "assets/src/unconcatenatedFiles/css/**/*.css",
+      "assets/build/unconcatenatedFiles/css/**/*.css"
     ],
     "distPrintCss": [
       "assets/build/css/print.css"
+    ],
+    "babelJs": [
+      "assets/src/js/**/*.js"
+    ],
+    "babelUnconcatJs": [
+      "assets/src/unconcatenatedFiles/js/**/*.js",
+      "!assets/src/unconcatenatedFiles/js/vendor/**/*.js"
     ],
     "distJs": [
       "node_modules/picturefill/dist/picturefill.min.js",
@@ -73,16 +74,19 @@
       "assets/build/js/**/*.js"
     ],
     "distUnconcatJs": [
-      "../mobiltex/trunk/build/unconcatenated-files/js/**/*.js",
-      "unconcatenated-files/js/**/*.js",
-      "!unconcatenated-files/js/**/*.babel.js"
-    ],
-    "babelJs": [
-      "assets/src/js/**/*.js"
-    ],
-    "babelUnconcatJs": [
-      "unconcatenated-files/js/**/*.babel.js"
+      "assets/src/unconcatenatedFiles/js/vendor/**/*.js",
+      "assets/build/unconcatenatedFiles/js/**/*.js"
     ]
+  },
+  "urls": {},
+  "vars": {
+    "siteCssName": "site.combined.min.css",
+    "printCssName": "print.min.css",
+    "scssScreenName": "all.scss",
+    "scssPrintName": "print.scss",
+    "cssName": "all.css",
+    "jsName": "script.js",
+    "buildJsName": "buildScript.js"
   },
   "dependencies": {
     "fg-loadcss": "^2.1.0",
@@ -145,6 +149,7 @@
     "moment": "^2.24.0",
     "path": "^0.12.7",
     "postcss-normalize": "^8.0.1",
+    "postcss-object-fit-images": "^1.1.2",
     "pump": "^3.0.0",
     "vinyl-ftp": "^0.6.1",
     "vinyl-source-stream": "^2.0.0"

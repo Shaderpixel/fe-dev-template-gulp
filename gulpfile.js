@@ -1,18 +1,13 @@
 const path = require('path');
-
-// package vars
-let pkg = require('./package.json');
-
-// gulp
-let gulp = require('gulp');
-
-// load all plugins in "devDependencies" into the variable $
-let $ = require('gulp-load-plugins')({
+const postcssObjectfit = require('postcss-object-fit-images');
+const gulp = require('gulp'); // gulp
+const $ = require('gulp-load-plugins')({
+  // load all plugins in "devDependencies" into the variable $
   pattern: [ '*' ],
   scope: [ 'devDependencies' ]
 });
-
-let browserSync = require('browser-sync').create();
+const browserSync = require('browser-sync').create();
+const pkg = require('./package.json'); // package vars
 
 function customPlumber(errTitle) {
   return $.plumber({
@@ -25,7 +20,7 @@ function customPlumber(errTitle) {
   });
 }
 
-let banner = [
+const banner = [
   '/**',
   ' * @project        <%= pkg.name %>',
   ' * @author         <%= pkg.author %>',
@@ -35,40 +30,39 @@ let banner = [
   ''
 ].join('\n');
 
+// TODO move task functions up here
+// TODO standardize task names
 /* ----------------- */
 /* SCREEN CSS GULP TASKS
 /* ----------------- */
-
-// scss - build the scss to the build folder, including the required paths, and writing out a sourcemap
-gulp.task('screenScss', () => {
-  $.fancyLog(`-> Compiling screen scss: ${pkg.paths.build.css}${pkg.vars.scssName}`);
+function scssCompile(src, dest, options) {
+  $.fancyLog(`-> Compiling scss: ${options.fileName} into ${dest}`);
   return gulp
-    .src(`${pkg.paths.src.scss}${pkg.vars.scssName}`)
-    .pipe(customPlumber('Error Running Sass'))
+    .src(src)
+    .pipe(customPlumber(`Error Running Sass Compile: ${options.fileName}`))
     .pipe($.sassGlob())
     .pipe($.sourcemaps.init({ loadMaps: true }))
     .pipe(
       $.sass({
-        includePaths: [ path.dirname(require.resolve('modularscale-sass')) ]
+        includePaths: [ path.dirname(require.resolve('modularscale-sass')), 'node_modules' ]
       }).on('error', $.sass.logError)
     )
-    .pipe($.cached('sass_compile'))
     .pipe($.autoprefixer())
     .pipe($.sourcemaps.write('./'))
+    .pipe($.cached(`sass_compile:${options.cacheName}`))
     .pipe($.size({ gzip: true, showFiles: true }))
-    .pipe(gulp.dest(pkg.paths.build.css));
-});
+    .pipe(gulp.dest(dest));
+}
 
-// css task - combine & minimize any vendor CSS into the public css folder
-gulp.task('screenCss', () => {
-  $.fancyLog('-> Building screen css');
+function cssConcatNano(src, dest, options) {
+  $.fancyLog(`-> Building concatenated minified css: ${options.fileName}`);
   return gulp
-    .src(pkg.globs.distCss)
-    .pipe(customPlumber('Error Running Sass'))
+    .src(src, { allowEmpty: Boolean(options.allowEmpty) })
+    .pipe(customPlumber('Error Running cssConcatNano'))
     .pipe($.print.default())
     .pipe($.sourcemaps.init({ loadMaps: true }))
-    .pipe($.postcss([ require(`${__dirname}/node_modules/postcss-normalize`)({ forceImport: true }) ]))
-    .pipe($.concat(pkg.vars.siteCssName))
+    .pipe($.postcss([ require('postcss-normalize')({ forceImport: true }) ]))
+    .pipe($.concat(options.fileName))
     .pipe(
       $.cssnano({
         discardComments: {
@@ -84,49 +78,62 @@ gulp.task('screenCss', () => {
     .pipe($.header(banner, { pkg: pkg }))
     .pipe($.sourcemaps.write('./'))
     .pipe($.size({ gzip: true, showFiles: true }))
-    .pipe(gulp.dest(pkg.paths.dist.css))
+    .pipe(gulp.dest(dest))
     .pipe($.filter('**/*.css'))
     .pipe(browserSync.reload({ stream: true }));
-});
+}
+
+// scss - build the scss to the build folder, including the required paths, and writing out a sourcemap
+gulp.task('screenScss', () =>
+  scssCompile(pkg.paths.src.base + pkg.paths.src.scss + pkg.vars.scssScreenName, pkg.paths.build.base + pkg.paths.build.css, {
+    fileName: pkg.vars.scssScreenName,
+    cacheName: 'screenScss'
+  })
+);
+
+// css task - combine & minimize any vendor CSS into the public css folder
+gulp.task('screenCss', () =>
+  cssConcatNano(pkg.globs.distCss, pkg.paths.dist.base + pkg.paths.dist.css, { fileName: pkg.vars.siteCssName })
+);
 
 /* ----------------- */
 /* PRINT CSS GULP TASKS
 /* ----------------- */
 
 // scss - build the scss to the build folder, including the required paths, and writing out a sourcemap
-gulp.task('printScss', () => {
-  $.fancyLog(`-> Compiling print scss into ${pkg.paths.build.css}`);
-  return gulp
-    .src(`${pkg.paths.src.scss}print.scss`, { allowEmpty: true })
-    .pipe(customPlumber('Error Running Sass'))
-    .pipe($.sassGlob())
-    .pipe($.sourcemaps.init({ loadMaps: true }))
-    .pipe(
-      $.sass({
-        includePaths: [ path.dirname(require.resolve('modularscale-sass')) ]
-      }).on('error', $.sass.logError)
-    )
-    .pipe($.cached('sass_compile'))
-    .pipe($.autoprefixer())
-    .pipe($.sourcemaps.write('./'))
-    .pipe($.size({ gzip: true, showFiles: true }))
-    .pipe(gulp.dest(pkg.paths.build.css));
-});
+gulp.task('printScss', () =>
+  scssCompile(pkg.paths.src.base + pkg.paths.src.scss + pkg.vars.scssPrintName, pkg.paths.build.base + pkg.paths.build.css, {
+    fileName: pkg.vars.scssPrintName
+  })
+);
 
 // css task - combine & minimize any vendor CSS into the public css folder
-gulp.task(
-  'printCss',
-  gulp.series('printScss', () => {
-    $.fancyLog('-> Building print css');
-    return gulp
-      .src(`${pkg.globs.distPrintCss}`, { allowEmpty: true })
-      .pipe(customPlumber('Error Running Sass'))
-      .pipe($.newer({ dest: pkg.paths.dist.css }))
-      .pipe($.print.default())
-      .pipe($.sourcemaps.init({ loadMaps: true }))
-      .pipe($.postcss([ require(`${__dirname}/node_modules/postcss-normalize`)({ forceImport: true }) ]))
-      .pipe($.concat(pkg.vars.printCssName))
-      .pipe(
+gulp.task('printCss', () =>
+  cssConcatNano(pkg.globs.distPrintCss, pkg.paths.dist.base + pkg.paths.dist.css, {
+    fileName: pkg.vars.printCssName,
+    allowEmpty: true
+  })
+);
+
+/* ----------------- */
+/* Unconcat CSS GULP TASKS
+/* ----------------- */
+gulp.task('unconcatScss', () =>
+  scssCompile(pkg.globs.srcUnconcatScss, pkg.paths.buildUnconcat.base + pkg.paths.buildUnconcat.css, {
+    fileName: 'unconcatenated scss files'
+  })
+);
+
+function cssNano(src, dest, options) {
+  $.fancyLog(`-> Building minified css: ${options.fileName}`);
+  return gulp
+    .src(src, { allowEmpty: Boolean(options.allowEmpty) })
+    .pipe(customPlumber(`Error Running cssNano: ${options.fileName}`))
+    .pipe($.print.default())
+    .pipe($.sourcemaps.init({ loadMaps: true }))
+    .pipe(
+      $.if(
+        [ '*.css', '!*.min.css' ],
         $.cssnano({
           discardComments: {
             removeAll: true
@@ -134,15 +141,26 @@ gulp.task(
           discardDuplicates: true,
           discardEmpty: true,
           minifyFontValues: true,
-          minifySelectors: true
+          minifySelectors: true,
+          zindex: false
         })
       )
-      .pipe($.header(banner, { pkg: pkg }))
-      .pipe($.sourcemaps.write('./'))
-      .pipe($.size({ gzip: true, showFiles: true }))
-      .pipe(gulp.dest(pkg.paths.dist.css))
-      .pipe($.filter('**/*.css'))
-      .pipe(browserSync.reload({ stream: true }));
+    )
+    .pipe($.if([ '*.css', '!*.min.css' ], $.header(banner, { pkg: pkg })))
+    .pipe($.if([ '*.css', '!*.min.css' ], $.rename({ suffix: '.min' })))
+    .pipe($.sourcemaps.write('./'))
+    .pipe($.cached(`sass_compile:${options.cacheName}`))
+    .pipe($.size({ gzip: true, showFiles: true }))
+    .pipe(gulp.dest(dest))
+    .pipe($.filter('**/*.css'))
+    .pipe(browserSync.reload({ stream: true }));
+}
+
+gulp.task('unconcatCss', () =>
+  cssNano(pkg.globs.distUnconcatCss, pkg.paths.distUnconcat.base + pkg.paths.distUnconcat.css, {
+    fileName: 'unconcatenated CSS files',
+    allowEmpty: true,
+    cacheName: 'unconcatCss'
   })
 );
 
@@ -157,6 +175,7 @@ gulp.task('eslint', () => {
       // default: use local linting config
       .pipe(
         $.eslint({
+          fix: true,
           // Load a specific ESLint config
           configFile: '.eslintrc.json'
         })
@@ -166,12 +185,12 @@ gulp.task('eslint', () => {
   );
 });
 
-gulp.task('cached-lint', () => {
-  $.fancyLog('-> Linting Javascript via eslint...');
+function cachedLint(src, options) {
+  $.fancyLog(`-> Linting Javascript ${options.taskName} via eslint...`);
   return (
     gulp
-      .src([ `${pkg.paths.src.js}**/*.js`, `!${pkg.paths.src.js}/vendor/**/*.js` ])
-      .pipe($.cached('eslint'))
+      .src(src)
+      .pipe($.cached(options.cacheName))
       // Only uncached and changed files past this point
       .pipe($.eslint())
       .pipe($.eslint.format())
@@ -179,25 +198,45 @@ gulp.task('cached-lint', () => {
         $.eslint.result((result) => {
           if (result.warningCount > 0 || result.errorCount > 0) {
             // If a file has errors/warnings remove uncache it
-            delete $.cached.caches.eslint[$.path.resolve(result.filePath)];
+            delete $.cached.caches[options.cacheName][$.path.resolve(result.filePath)];
           }
         })
       )
   );
-});
+}
+
+gulp.task('cached-lint', () =>
+  cachedLint([ `${pkg.paths.src.base + pkg.paths.src.js}**/*.js`, `!${pkg.paths.src.base + pkg.paths.src.js}/vendor/**/*.js` ], {
+    taskName: 'concat JS',
+    cacheName: 'eslint'
+  })
+);
+
+gulp.task('cached-lint:unconcat', () =>
+  cachedLint(
+    [ `${pkg.paths.src.unconcatBase + pkg.paths.src.js}**/*.js`, `!${pkg.paths.src.unconcatBase + pkg.paths.src.js}/vendor/**/*.js` ],
+    {
+      taskName: 'unconcat JS',
+      cacheName: 'eslintUnconcat'
+    }
+  )
+);
 
 // babel js task - transpile our Javascript into the build directory
 gulp.task('js-babel-concat', (done) => {
   $.fancyLog('-> Transpiling Javascript via Babel...');
-  $.pump([
-    gulp.src(pkg.globs.babelJs),
-    customPlumber('Error Running js-babel'),
-    $.newer({ dest: pkg.paths.build.js }),
-    $.concat(pkg.vars.buildJsName),
-    $.babel(),
-    $.size({ gzip: true, showFiles: true }),
-    gulp.dest(pkg.paths.build.js)
-  ], done);
+  $.pump(
+    [
+      gulp.src(pkg.globs.babelJs),
+      customPlumber('Error Running js-babel'),
+      $.newer({ dest: pkg.paths.build.js }),
+      $.concat(pkg.vars.buildJsName),
+      $.babel(),
+      $.size({ gzip: true, showFiles: true }),
+      gulp.dest(pkg.paths.build.base + pkg.paths.build.js)
+    ],
+    done
+  );
 });
 
 // js task - minimize any distribution Javascript into the public js folder, and add our banner to it
@@ -222,7 +261,56 @@ gulp.task(
         .pipe($.if([ '*.js', '!*.min.js' ], $.rename({ suffix: '.min' })))
         .pipe($.header(banner, { pkg: pkg }))
         .pipe($.size({ gzip: true, showFiles: true }))
-        .pipe(gulp.dest(pkg.paths.dist.js))
+        .pipe(gulp.dest(pkg.paths.dist.base + pkg.paths.dist.js))
+        .pipe($.filter('**/*.js'))
+        .pipe(browserSync.reload({ stream: true }))
+    );
+  })
+);
+
+// babel unconcat js task - transpile our Javascript into the build directory
+gulp.task('jsBabelUnconcat', (done) => {
+  $.fancyLog('-> Transpiling Javascript via Babel...');
+  $.pump(
+    [
+      gulp.src(pkg.globs.babelUnconcatJs),
+      customPlumber('Error Running jsBabelUnconcat'),
+      $.newer({ dest: pkg.paths.build.unconcatBase + pkg.paths.build.js }),
+      $.babel(),
+      $.size({ gzip: true, showFiles: true }),
+      gulp.dest(pkg.paths.build.unconcatBase + pkg.paths.build.js)
+    ],
+    done
+  );
+});
+
+gulp.task(
+  'js:unconcat',
+  gulp.series('jsBabelUnconcat', () => {
+    $.fancyLog('-> Building Unconcatenated js');
+    return (
+      gulp
+        .src(pkg.globs.distUnconcatJs)
+        .pipe(customPlumber('Error minifying js'))
+        // .pipe($.if([ '*.js', '!*.min.js' ], $.newer({ dest: pkg.paths.dist.js, ext: '.min.js' }), $.newer({ dest: pkg.paths.dist.js })))
+        .pipe($.cached('js:unconcat'))
+        .pipe(
+          $.if(
+            [ '*.js', '!*.min.js' ],
+            $.uglifyEs.default().on('error', (err) => {
+              $.fancyLog(err.toString());
+            })
+          )
+        )
+        .pipe($.if([ '*.js', '!*.min.js' ], $.rename({ suffix: '.min' })))
+        .pipe(
+          $.if(
+            (file) => !file.path.includes(`${pkg.paths.src.unconcatBase}${pkg.paths.src.js}vendor/`),
+            $.header(banner, { pkg: pkg }) // add banner only if file is not in the vendor folder
+          )
+        )
+        .pipe($.size({ gzip: true, showFiles: true }))
+        .pipe(gulp.dest(pkg.paths.distUnconcat.base + pkg.paths.distUnconcat.js))
         .pipe($.filter('**/*.js'))
         .pipe(browserSync.reload({ stream: true }))
     );
@@ -252,18 +340,16 @@ gulp.task('imagemin', () =>
 
 // task to convert svg to data uri
 gulp.task('sassvg', () =>
-  gulp.src(`${pkg.paths.src.svg}/**/*.svg`).pipe(
+  gulp.src(`${pkg.paths.src.base + pkg.paths.src.svg}/**/*.svg`).pipe(
     sassvg({
-      outputFolder: pkg.paths.dist.svg, // IMPORTANT: this folder needs to exist
+      outputFolder: pkg.paths.dist.base + pkg.paths.dist.svg, // IMPORTANT: this folder needs to exist
       optimizeSvg: true // true (default) means about 25% reduction of generated file size, but 3x time for generating the _icons.scss file
     })
   )
 );
 
 // output plugin names in terminal
-gulp.task('pluginOutput', () => {
-  console.log($);
-});
+gulp.task('pluginOutput', () => console.log($));
 
 // copy html from  dev to dist
 gulp.task('htmlDistCopy', () =>
@@ -277,7 +363,11 @@ gulp.task('htmlDistCopy', () =>
 gulp.task('fonts', () => gulp.src(pkg.paths.src.fonts, { allowEmpty: true }).pipe(gulp.dest(pkg.paths.dist.fonts)));
 
 // Copy img
-gulp.task('img', () => gulp.src(`${pkg.paths.src.img}/**/*`, { allowEmpty: true }).pipe(gulp.dest(pkg.paths.dist.img)));
+gulp.task('img', () =>
+  gulp
+    .src(`${pkg.paths.src.base + pkg.paths.src.img}/**/*`, { allowEmpty: true })
+    .pipe(gulp.dest(pkg.paths.dist.base + pkg.paths.dist.img))
+);
 
 // delete dist folder
 gulp.task('clean:dist', (done) => {
@@ -320,13 +410,22 @@ gulp.task('browsersync', (done) => {
 /* ----------------- */
 
 gulp.task('screenAll', gulp.series('screenScss', 'screenCss'));
+gulp.task('printAll', gulp.series('printScss', 'printCss'));
 
 gulp.task('screenScssWatch', () => {
   gulp.watch([ `${pkg.paths.src.scss}**/*.scss`, '!print.scss' ], gulp.series('screenAll'));
 });
 
 gulp.task('printScssWatch', () => {
-  gulp.watch([ `${pkg.paths.src.scss}print.scss` ], gulp.series('printCss'));
+  gulp.watch([ `${pkg.paths.src.scss}print.scss` ], gulp.series('printAll'));
+});
+
+gulp.task('unconcatScssWatch', () => {
+  gulp.watch([ `${pkg.globs.srcUnconcatScss}` ], gulp.series('unconcatScss'));
+});
+
+gulp.task('unconcatCssWatch', () => {
+  gulp.watch(pkg.globs.distUnconcatCss, gulp.series('unconcatCss'));
 });
 
 gulp.task('htmlCopyWatch', () => {
@@ -341,8 +440,14 @@ gulp.task('jsLintWatch', () => {
   });
 });
 
+// todo add jslintwatch for unconcat files
+
 gulp.task('jsWatch', () => {
-  gulp.watch([ `${pkg.paths.src.js}**/*.js` ], gulp.series('js'));
+  gulp.watch([ `${pkg.paths.src.base + pkg.paths.src.js}**/*.js` ], gulp.series('js'));
+});
+
+gulp.task('jsWatch:unconcat', () => {
+  gulp.watch([ `${pkg.paths.src.unconcatBase + pkg.paths.src.js}**/*.js` ], gulp.series('js:unconcat'));
 });
 
 gulp.task('fontsWatch', () => {
@@ -351,7 +456,20 @@ gulp.task('fontsWatch', () => {
 
 gulp.task(
   'preWatch',
-  gulp.series('clean:build', 'clean:dist', 'htmlDistCopy', 'screenAll', 'printCss', 'cached-lint', 'js', 'fonts', 'img')
+  gulp.series(
+    'clean:build',
+    'clean:dist',
+    'htmlDistCopy',
+    'screenAll',
+    'printCss',
+    'unconcatScss',
+    'unconcatCss',
+    'cached-lint',
+    'js',
+    'js:unconcat',
+    'fonts',
+    'img'
+  )
 );
 
 gulp.task(
@@ -360,9 +478,12 @@ gulp.task(
     'browsersync',
     'screenScssWatch',
     'printScssWatch',
+    'unconcatScssWatch',
+    'unconcatCssWatch',
     'htmlCopyWatch',
     'jsLintWatch',
     'jsWatch',
+    'jsWatch:unconcat',
     'htmlCopyWatch',
     'fontsWatch'
   )
@@ -373,3 +494,5 @@ gulp.task('default', gulp.series('preWatch', 'watching'));
 
 // Production build
 gulp.task('build', gulp.series('clean:dist', 'htmlDistCopy', 'screenAll', 'printCss', 'js', 'fonts', 'img'));
+
+// todo implement SVG sprite
