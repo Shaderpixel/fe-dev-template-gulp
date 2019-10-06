@@ -413,11 +413,11 @@ gulp.task('screenAll', gulp.series('screenScss', 'screenCss'));
 gulp.task('printAll', gulp.series('printScss', 'printCss'));
 
 gulp.task('screenScssWatch', () => {
-  gulp.watch([ `${pkg.paths.src.scss}**/*.scss`, '!print.scss' ], gulp.series('screenAll'));
+  gulp.watch([ `${pkg.paths.src.base + pkg.paths.src.scss}**/*.scss`, '!print.scss' ], gulp.series('screenAll'));
 });
 
 gulp.task('printScssWatch', () => {
-  gulp.watch([ `${pkg.paths.src.scss}print.scss` ], gulp.series('printAll'));
+  gulp.watch([ `${pkg.paths.src.base + pkg.paths.src.scss}print.scss` ], gulp.series('printAll'));
 });
 
 gulp.task('unconcatScssWatch', () => {
@@ -433,7 +433,7 @@ gulp.task('htmlCopyWatch', () => {
 });
 
 gulp.task('jsLintWatch', () => {
-  gulp.watch(`${pkg.paths.src.js}**/*.js`, gulp.series('cached-lint')).on('unlink', (ePath, stats) => {
+  gulp.watch(`${pkg.paths.src.base + pkg.paths.src.js}**/*.js`, gulp.series('cached-lint')).on('unlink', (ePath, stats) => {
     // code to execute on delete
     console.log(`${ePath} deleted - [cachedEsLint-watch]`);
     delete $.cached.caches.eslint[ePath]; // remove deleted files from cache
@@ -496,3 +496,4 @@ gulp.task('default', gulp.series('preWatch', 'watching'));
 gulp.task('build', gulp.series('clean:dist', 'htmlDistCopy', 'screenAll', 'printCss', 'js', 'fonts', 'img'));
 
 // todo implement SVG sprite
+// todo switch out uglify-es for terser
