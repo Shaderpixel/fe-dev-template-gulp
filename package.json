@@ -102,7 +102,6 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
     "@babel/plugin-transform-arrow-functions": "^7.2.0",
     "@babel/preset-env": "^7.5.5",
-    "bootstrap-sass": "^3.3.7",
     "browser-sync": "^2.26.7",
     "chalk": "^2.4.2",
     "dcf": "git+https://github.com/d-c-n/dcf.git",
